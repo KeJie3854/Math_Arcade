@@ -37,6 +37,7 @@ dependencies:
   confetti: ^0.7.0
   flutter_launcher_icons: ^0.14.3
   shared_preferences: ^2.2.2  # Added for persistent leaderboard storage
+  audioplayers: ^5.2.1       # Added for sound effects
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +65,10 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/icon.png  # Added for app icon
+    - assets/sounds/confetti.mp3  # Sound for winning/confetti
+    - assets/sounds/lose.mp3      # Sound for losing
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -90,3 +95,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon.png"

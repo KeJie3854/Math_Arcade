@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'widgets.dart';
 
 class OrderScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _OrderScreenState extends State<OrderScreen> {
   bool isAscending = true;
   String message = '';
   late ConfettiController _confettiController;
+  late AudioPlayer _audioPlayer;
   int score = 0;
   int streak = 0;
   int timeLeft = 30;
@@ -31,6 +33,7 @@ class _OrderScreenState extends State<OrderScreen> {
   void initState() {
     super.initState();
     _confettiController = ConfettiController(duration: Duration(seconds: 2));
+    _audioPlayer = AudioPlayer();
     _loadLeaderboard();
     startTimer();
     newNumbers();
@@ -58,7 +61,7 @@ class _OrderScreenState extends State<OrderScreen> {
           timer.cancel();
           message = 'Time’s Up!';
           _confettiController.stop();
-          endSession();
+          _showLoseDialog(); // Show lose dialog instead of endSession
         }
       });
     });
@@ -106,23 +109,72 @@ class _OrderScreenState extends State<OrderScreen> {
         score += 10 + bonus + streakBonus;
         message = 'You Rock! +${10 + bonus + streakBonus} points';
         _confettiController.play();
+        _audioPlayer.play(AssetSource('sounds/confetti.mp3'));
       } else {
         message = 'Mix-Up!';
-        endSession();
+        _showLoseDialog(); // Show lose dialog instead of endSession
       }
     });
   }
 
-  void endSession() {
+  void _showLoseDialog() {
+    _audioPlayer.play(AssetSource('sounds/lose.mp3')); // Play lose sound
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Order Chaos!', style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+          content: Text(
+            'Oops, Number Ninja! Your score was $score.\nReady to reorder or retreat?',
+            style: TextStyle(fontSize: 20, color: Colors.purple),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _saveScoreAndReset();
+              },
+              child: Text('Try Again', style: TextStyle(fontSize: 18, color: Colors.green)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                endGame();
+              },
+              child: Text('Back to Menu', style: TextStyle(fontSize: 18, color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _saveScoreAndReset() {
     if (score > 0) {
       OrderScreen.leaderboard.add(score);
       OrderScreen.leaderboard.sort((a, b) => b.compareTo(a));
       if (OrderScreen.leaderboard.length > 5) OrderScreen.leaderboard = OrderScreen.leaderboard.sublist(0, 5);
       _saveLeaderboard();
     }
-    score = 0;
-    streak = 0;
+    setState(() {
+      score = 0;
+      streak = 0;
+      level = 1; // Reset level too
+      correctAnswers = 0;
+    });
     newNumbers();
+  }
+
+  void endGame() {
+    _timer.cancel();
+    if (score > 0) {
+      OrderScreen.leaderboard.add(score);
+      OrderScreen.leaderboard.sort((a, b) => b.compareTo(a));
+      if (OrderScreen.leaderboard.length > 5) OrderScreen.leaderboard = OrderScreen.leaderboard.sublist(0, 5);
+      _saveLeaderboard();
+    }
+    Navigator.pop(context);
   }
 
   void _showEndGameConfirmation() {
@@ -150,21 +202,11 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  void endGame() {
-    _timer.cancel();
-    if (score > 0) {
-      OrderScreen.leaderboard.add(score);
-      OrderScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (OrderScreen.leaderboard.length > 5) OrderScreen.leaderboard = OrderScreen.leaderboard.sublist(0, 5);
-      _saveLeaderboard();
-    }
-    Navigator.pop(context);
-  }
-
   @override
   void dispose() {
     _timer.cancel();
     _confettiController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
