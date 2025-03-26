@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
 void main() {
-  runApp(MathArcade());
+  runApp(MathApp());
 }
 
-class MathArcade extends StatelessWidget {
+class MathApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Math Arcade',
-      theme: ThemeData(fontFamily: 'Comic Sans MS'),
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
       home: HomeScreen(),
     );
   }

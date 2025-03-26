@@ -57,7 +57,7 @@ class _CompareScreenState extends State<CompareScreen> {
           timer.cancel();
           message = 'Time’s Up!';
           _confettiController.stop();
-          _showLoseDialog(); // Show lose dialog instead of endSession
+          _showLoseDialog();
         }
       });
     });
@@ -90,16 +90,16 @@ class _CompareScreenState extends State<CompareScreen> {
         _audioPlayer.play(AssetSource('sounds/confetti.mp3'));
       } else {
         message = 'Oops, Try Again!';
-        _showLoseDialog(); // Show lose dialog instead of endSession
+        _showLoseDialog();
       }
     });
   }
 
   void _showLoseDialog() {
-    _audioPlayer.play(AssetSource('sounds/lose.mp3')); // Play lose sound
+    _audioPlayer.play(AssetSource('sounds/lose.mp3'));
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Oh Snap!', style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
@@ -110,15 +110,15 @@ class _CompareScreenState extends State<CompareScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                _saveScoreAndReset(); // Reset and start fresh
+                Navigator.of(context).pop();
+                _saveScoreAndReset();
               },
               child: Text('Try Again', style: TextStyle(fontSize: 18, color: Colors.green)),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                endGame(); // Save score and exit
+                Navigator.of(context).pop();
+                endGame();
               },
               child: Text('Back to Menu', style: TextStyle(fontSize: 18, color: Colors.blue)),
             ),
@@ -129,12 +129,6 @@ class _CompareScreenState extends State<CompareScreen> {
   }
 
   void _saveScoreAndReset() {
-    if (score > 0) {
-      CompareScreen.leaderboard.add(score);
-      CompareScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (CompareScreen.leaderboard.length > 5) CompareScreen.leaderboard = CompareScreen.leaderboard.sublist(0, 5);
-      _saveLeaderboard();
-    }
     setState(() {
       score = 0;
       streak = 0;

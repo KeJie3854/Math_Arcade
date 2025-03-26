@@ -59,7 +59,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
           timer.cancel();
           message = 'Time’s Up!';
           _confettiController.stop();
-          _showLoseDialog(); // Show lose dialog instead of endSession
+          _showLoseDialog();
         }
       });
     });
@@ -111,14 +111,14 @@ class _ComposeScreenState extends State<ComposeScreen> {
           _audioPlayer.play(AssetSource('sounds/confetti.mp3'));
         } else {
           message = 'Whoops!';
-          _showLoseDialog(); // Show lose dialog instead of endSession
+          _showLoseDialog();
         }
       }
     });
   }
 
   void _showLoseDialog() {
-    _audioPlayer.play(AssetSource('sounds/lose.mp3')); // Play lose sound
+    _audioPlayer.play(AssetSource('sounds/lose.mp3'));
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -151,12 +151,6 @@ class _ComposeScreenState extends State<ComposeScreen> {
   }
 
   void _saveScoreAndReset() {
-    if (score > 0) {
-      ComposeScreen.leaderboard.add(score);
-      ComposeScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (ComposeScreen.leaderboard.length > 5) ComposeScreen.leaderboard = ComposeScreen.leaderboard.sublist(0, 5);
-      _saveLeaderboard();
-    }
     setState(() {
       score = 0;
       streak = 0;

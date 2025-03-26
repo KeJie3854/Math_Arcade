@@ -61,7 +61,7 @@ class _OrderScreenState extends State<OrderScreen> {
           timer.cancel();
           message = 'Time’s Up!';
           _confettiController.stop();
-          _showLoseDialog(); // Show lose dialog instead of endSession
+          _showLoseDialog();
         }
       });
     });
@@ -112,13 +112,13 @@ class _OrderScreenState extends State<OrderScreen> {
         _audioPlayer.play(AssetSource('sounds/confetti.mp3'));
       } else {
         message = 'Mix-Up!';
-        _showLoseDialog(); // Show lose dialog instead of endSession
+        _showLoseDialog();
       }
     });
   }
 
   void _showLoseDialog() {
-    _audioPlayer.play(AssetSource('sounds/lose.mp3')); // Play lose sound
+    _audioPlayer.play(AssetSource('sounds/lose.mp3'));
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -151,16 +151,10 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   void _saveScoreAndReset() {
-    if (score > 0) {
-      OrderScreen.leaderboard.add(score);
-      OrderScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (OrderScreen.leaderboard.length > 5) OrderScreen.leaderboard = OrderScreen.leaderboard.sublist(0, 5);
-      _saveLeaderboard();
-    }
     setState(() {
       score = 0;
       streak = 0;
-      level = 1; // Reset level too
+      level = 1;
       correctAnswers = 0;
     });
     newNumbers();

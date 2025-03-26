@@ -23,7 +23,6 @@ class HomeScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Fancy Header
               Container(
                 padding: EdgeInsets.all(20),
                 width: double.infinity,
