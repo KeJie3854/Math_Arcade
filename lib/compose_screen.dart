@@ -26,6 +26,8 @@ class _ComposeScreenState extends State<ComposeScreen> {
   int timeLeft = 30;
   late Timer _timer;
   bool showHurryUp = false;
+  int level = 1;
+  int correctAnswers = 0;
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
           showHurryUp = timeLeft <= 5;
         } else {
           timer.cancel();
-          message = 'Time’s Up!';
+          message = 'Time\'s Up!';
           _confettiController.stop();
           _showLoseDialog();
         }
@@ -67,7 +69,9 @@ class _ComposeScreenState extends State<ComposeScreen> {
 
   void newNumbers() {
     setState(() {
-      target = random.nextInt(20) + 5;
+      int maxTarget = level == 1 ? 20 : (level == 2 ? 50 : 99);
+      int maxNumber = level == 1 ? 20 : (level == 2 ? 50 : 99);
+      target = random.nextInt(maxTarget - 4) + 5;
       choices = [];
       int part1 = random.nextInt(target - 1) + 1;
       int part2 = target - part1;
@@ -75,10 +79,10 @@ class _ComposeScreenState extends State<ComposeScreen> {
       choices.add(part2);
       int distractor1, distractor2;
       do {
-        distractor1 = random.nextInt(20) + 1;
+        distractor1 = random.nextInt(maxNumber) + 1;
       } while (distractor1 == part1 || distractor1 == part2 || distractor1 + part1 == target || distractor1 + part2 == target);
       do {
-        distractor2 = random.nextInt(20) + 1;
+        distractor2 = random.nextInt(maxNumber) + 1;
       } while (distractor2 == part1 || distractor2 == part2 || distractor2 == distractor1 || distractor2 + part1 == target || distractor2 + part2 == target || distractor2 + distractor1 == target);
       choices.add(distractor1);
       choices.add(distractor2);
@@ -103,6 +107,8 @@ class _ComposeScreenState extends State<ComposeScreen> {
       if (picked.length == 2) {
         if (picked[0] + picked[1] == target) {
           streak++;
+          correctAnswers++;
+          if (correctAnswers % 5 == 0 && level < 3) level++;
           int bonus = timeLeft > 20 ? 5 : 0;
           int streakBonus = (streak >= 3) ? 10 : 0;
           score += 10 + bonus + streakBonus;
@@ -124,9 +130,12 @@ class _ComposeScreenState extends State<ComposeScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Mix Mishap!', style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+          title: Text(message == 'Time\'s Up!' ? 'Time Ran Out!' : 'Mix Mishap!', 
+            style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
           content: Text(
-            'Yikes, Mix Master! Your score was $score.\nMix it up again or bounce?',
+            message == 'Time\'s Up!' 
+              ? 'Oops, Time\'s Up! Your score was $score.\nMix it up again or bounce?' 
+              : 'Yikes, Mix Master! Your score was $score.\nMix it up again or bounce?',
             style: TextStyle(fontSize: 20, color: Colors.purple),
           ),
           actions: [
@@ -154,6 +163,8 @@ class _ComposeScreenState extends State<ComposeScreen> {
     setState(() {
       score = 0;
       streak = 0;
+      level = 1;
+      correctAnswers = 0;
     });
     newNumbers();
   }
@@ -163,7 +174,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
     if (score > 0) {
       ComposeScreen.leaderboard.add(score);
       ComposeScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (ComposeScreen.leaderboard.length > 5) ComposeScreen.leaderboard = ComposeScreen.leaderboard.sublist(0, 5);
+      if (ComposeScreen.leaderboard.length > 10) ComposeScreen.leaderboard = ComposeScreen.leaderboard.sublist(0, 10);
       _saveLeaderboard();
     }
     Navigator.pop(context);
@@ -213,7 +224,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Score: $score | Streak: $streak', style: TextStyle(fontSize: 25, color: Colors.purple)),
+                Text('Level: $level | Score: $score | Streak: $streak', style: TextStyle(fontSize: 25, color: Colors.purple)),
                 SizedBox(height: 10),
                 Text('Time: $timeLeft s', style: TextStyle(fontSize: 25, color: timeLeft <= 5 ? Colors.red : Colors.purple)),
                 if (showHurryUp)

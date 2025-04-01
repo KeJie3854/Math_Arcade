@@ -48,10 +48,10 @@ class LeaderboardScreen extends StatelessWidget {
           if (scores.isEmpty)
             Text('No scores yet!', style: TextStyle(fontSize: 25, color: Colors.purple))
           else
-            for (int i = 0; i < scores.length && i < 5; i++)
+            for (int i = 0; i < scores.length && i < 10; i++)
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text('${i + 1}. ${scores[i]}', style: TextStyle(fontSize: 30, color: Colors.purple)),
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text('${i + 1}. ${scores[i]}', style: TextStyle(fontSize: 25, color: Colors.purple)),
               ),
         ],
       ),

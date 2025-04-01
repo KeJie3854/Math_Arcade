@@ -59,7 +59,7 @@ class _OrderScreenState extends State<OrderScreen> {
           showHurryUp = timeLeft <= 5;
         } else {
           timer.cancel();
-          message = 'Time’s Up!';
+          message = 'Time\'s Up!';
           _confettiController.stop();
           _showLoseDialog();
         }
@@ -124,9 +124,12 @@ class _OrderScreenState extends State<OrderScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Order Chaos!', style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+          title: Text(message == 'Time\'s Up!' ? 'Time Ran Out!' : 'Order Chaos!', 
+            style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
           content: Text(
-            'Oops, Number Ninja! Your score was $score.\nReady to reorder or retreat?',
+            message == 'Time\'s Up!' 
+              ? 'Oops, Time\'s Up! Your score was $score.\nReady to reorder or retreat?' 
+              : 'Oops, Number Ninja! Your score was $score.\nReady to reorder or retreat?',
             style: TextStyle(fontSize: 20, color: Colors.purple),
           ),
           actions: [
@@ -165,7 +168,7 @@ class _OrderScreenState extends State<OrderScreen> {
     if (score > 0) {
       OrderScreen.leaderboard.add(score);
       OrderScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (OrderScreen.leaderboard.length > 5) OrderScreen.leaderboard = OrderScreen.leaderboard.sublist(0, 5);
+      if (OrderScreen.leaderboard.length > 10) OrderScreen.leaderboard = OrderScreen.leaderboard.sublist(0, 10);
       _saveLeaderboard();
     }
     Navigator.pop(context);

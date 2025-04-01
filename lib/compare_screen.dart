@@ -24,6 +24,8 @@ class _CompareScreenState extends State<CompareScreen> {
   int timeLeft = 30;
   late Timer _timer;
   bool showHurryUp = false;
+  int level = 1;
+  int correctAnswers = 0;
 
   @override
   void initState() {
@@ -55,7 +57,7 @@ class _CompareScreenState extends State<CompareScreen> {
           showHurryUp = timeLeft <= 5;
         } else {
           timer.cancel();
-          message = 'Time’s Up!';
+          message = "Time's Up!";
           _confettiController.stop();
           _showLoseDialog();
         }
@@ -65,9 +67,10 @@ class _CompareScreenState extends State<CompareScreen> {
 
   void newNumbers() {
     setState(() {
-      num1 = random.nextInt(99) + 1;
-      num2 = random.nextInt(99) + 1;
-      if (num1 == num2) num2 = random.nextInt(99) + 1;
+      int maxNumber = level == 1 ? 20 : (level == 2 ? 50 : 99);
+      num1 = random.nextInt(maxNumber) + 1;
+      num2 = random.nextInt(maxNumber) + 1;
+      if (num1 == num2) num2 = random.nextInt(maxNumber) + 1;
       message = '';
       _confettiController.stop();
       timeLeft = 30;
@@ -82,6 +85,8 @@ class _CompareScreenState extends State<CompareScreen> {
       bool correct = (guess == 'bigger' && num1 > num2) || (guess == 'smaller' && num1 < num2);
       if (correct) {
         streak++;
+        correctAnswers++;
+        if (correctAnswers % 5 == 0 && level < 3) level++;
         int bonus = timeLeft > 20 ? 5 : 0;
         int streakBonus = (streak >= 3) ? 10 : 0;
         score += 10 + bonus + streakBonus;
@@ -102,9 +107,12 @@ class _CompareScreenState extends State<CompareScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Oh Snap!', style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+          title: Text(message == "Time's Up!" ? 'Time Ran Out!' : 'Oh Snap!', 
+            style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
           content: Text(
-            'Wrong Answer, Math Wizard! Your score was $score.\nWant to bounce back or bail?',
+            message == "Time's Up!" 
+              ? 'Oops, Time\'s Up! Your score was $score.\nWant to try again or head back?' 
+              : 'Wrong Answer, Math Wizard! Your score was $score.\nWant to bounce back or bail?',
             style: TextStyle(fontSize: 20, color: Colors.purple),
           ),
           actions: [
@@ -132,6 +140,8 @@ class _CompareScreenState extends State<CompareScreen> {
     setState(() {
       score = 0;
       streak = 0;
+      level = 1;
+      correctAnswers = 0;
     });
     newNumbers();
   }
@@ -141,7 +151,7 @@ class _CompareScreenState extends State<CompareScreen> {
     if (score > 0) {
       CompareScreen.leaderboard.add(score);
       CompareScreen.leaderboard.sort((a, b) => b.compareTo(a));
-      if (CompareScreen.leaderboard.length > 5) CompareScreen.leaderboard = CompareScreen.leaderboard.sublist(0, 5);
+      if (CompareScreen.leaderboard.length > 10) CompareScreen.leaderboard = CompareScreen.leaderboard.sublist(0, 10);
       _saveLeaderboard();
     }
     Navigator.pop(context);
@@ -191,11 +201,13 @@ class _CompareScreenState extends State<CompareScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Score: $score | Streak: $streak', style: TextStyle(fontSize: 25, color: Colors.purple)),
+                Text('Level: $level | Score: $score | Streak: $streak', style: TextStyle(fontSize: 25, color: Colors.purple)),
                 SizedBox(height: 10),
                 Text('Time: $timeLeft s', style: TextStyle(fontSize: 25, color: timeLeft <= 5 ? Colors.red : Colors.purple)),
                 if (showHurryUp)
                   Text('Hurry Up!', style: TextStyle(fontSize: 20, color: Colors.red, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                Text('Pick the Bigger Number!', style: TextStyle(fontSize: 30, color: Colors.purple, fontWeight: FontWeight.bold)),
                 SizedBox(height: 20),
                 Text('Number 1: $num1', style: TextStyle(fontSize: 40, color: Colors.purple)),
                 Text('Number 2: $num2', style: TextStyle(fontSize: 40, color: Colors.purple)),
@@ -203,9 +215,9 @@ class _CompareScreenState extends State<CompareScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    actionButton('Number 1 is Bigger', Colors.red, () => check('bigger')),
+                    actionButton('Number 1', Colors.red, () => check('bigger')),
                     SizedBox(width: 20),
-                    actionButton('Number 2 is Bigger', Colors.red, () => check('smaller')),
+                    actionButton('Number 2', Colors.red, () => check('smaller')),
                   ],
                 ),
                 SizedBox(height: 30),
